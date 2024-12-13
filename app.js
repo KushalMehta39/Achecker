@@ -30,6 +30,7 @@ app.post("/get-allocation", async (req, res) => {
     }
 
     const { value: cid, registrar } = company;
+    console.log(`Found registrar for ${companyName}: ${registrar}`);
 
     // Step 3: Validate registrar
     if (!allowedRegistrars.includes(registrar.toLowerCase())) {
