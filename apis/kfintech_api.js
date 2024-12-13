@@ -52,7 +52,7 @@ async function getAllocation(cid, panNumber) {
     while (attempt < maxRetries) {
         try {
             const captchaSelector = 'img#captchaimg';
-            await page.waitForSelector(captchaSelector, { timeout: 10000 });
+            await page.waitForSelector(captchaSelector, { timeout: 30000 });  // Increase timeout to 30 seconds
 
             const captchaImage = await page.$(captchaSelector);
             if (!captchaImage) {
@@ -65,7 +65,7 @@ async function getAllocation(cid, panNumber) {
             // Retry logic if captcha text is the same as last time
             if (captchaText === lastCaptchaText) {
                 console.log('Captcha text has not changed. Retrying...');
-                await page.waitForTimeout(2000); // Small delay before retrying
+                await page.waitFor(2000); // Use waitFor instead of waitForTimeout
                 attempt++;
                 continue;
             }
@@ -102,12 +102,12 @@ async function getAllocation(cid, panNumber) {
                 };
             } else {
                 console.log(`Captcha attempt ${attempt + 1} failed. Retrying...`);
-                await page.waitForTimeout(2000); // Delay before retrying
+                await page.waitFor(2000); // Use waitFor instead of waitForTimeout
                 attempt++;
             }
         } catch (error) {
             console.error(`Error in attempt ${attempt + 1}: ${error.message}`);
-            await page.waitForTimeout(2000); // Delay before retrying
+            await page.waitFor(2000); // Use waitFor instead of waitForTimeout
             attempt++;
         }
     }
@@ -166,7 +166,7 @@ print(''.join(filter(str.isdigit, text.strip())))
     });
 }
 
-// Launch with xvfb
+// Launch with xvfb (if needed for headless rendering)
 exec('xvfb-run node your-script.js', (error, stdout, stderr) => {
     if (error) {
         console.error(`exec error: ${error}`);
