@@ -58,27 +58,20 @@ async function getAllocation(cid, panNumber) {
             formData.__VIEWSTATE = await page.$eval('input[name="__VIEWSTATE"]', el => el.value);
             formData.__EVENTVALIDATION = await page.$eval('input[name="__EVENTVALIDATION"]', el => el.value);
 
-            // Submit the form and get response
+            // Submit the form
             const response = await submitForm(page, formData);
 
             // Process the response
             const { name, allottedShares } = processResponse(response);
 
-            // Return appropriate result
             if (name === 'Name not found' && allottedShares === 'Allotted shares not found') {
-                await page.close();
-                await browser.close();
                 return { name, allottedShares };
             }
 
             if (allottedShares === '0') {
-                await page.close();
-                await browser.close();
                 return { name, allottedShares: 'Not allotted' };
             }
 
-            await page.close();
-            await browser.close();
             return { name, allottedShares: `${allottedShares} shares allotted` };
 
         } catch (error) {
