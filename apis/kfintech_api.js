@@ -117,7 +117,7 @@ async function getAllocation(cid, panNumber) {
  */
 async function processCaptchaBuffer(imageBuffer) {
     return new Promise((resolve, reject) => {
-        const pythonProcess = spawn('python', ['-c', `
+        const pythonProcess = spawn('python3', ['-c', `
 import sys
 import cv2
 import numpy as np
