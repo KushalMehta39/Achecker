@@ -53,8 +53,8 @@ async function getAllocation(cid, panNumber) {
         try {
             const captchaSelector = 'img#captchaimg';
             await page.waitForSelector(captchaSelector, { timeout: 10000 });
-            const captchaImage = await page.$(captchaSelector);
 
+            const captchaImage = await page.$(captchaSelector);
             if (!captchaImage) {
                 throw new Error('Captcha image not found.');
             }
@@ -62,8 +62,10 @@ async function getAllocation(cid, panNumber) {
             const imageBuffer = await captchaImage.screenshot();
             captchaText = await processCaptchaBuffer(imageBuffer);
 
+            // Retry logic if captcha text is the same as last time
             if (captchaText === lastCaptchaText) {
                 console.log('Captcha text has not changed. Retrying...');
+                await page.waitForTimeout(2000); // Small delay before retrying
                 attempt++;
                 continue;
             }
@@ -73,6 +75,7 @@ async function getAllocation(cid, panNumber) {
             formData.__VIEWSTATE = await page.$eval('input[name="__VIEWSTATE"]', el => el.value);
             formData.__EVENTVALIDATION = await page.$eval('input[name="__EVENTVALIDATION"]', el => el.value);
 
+            // Sending the form data after captcha solving
             const response = await page.evaluate(async (formData) => {
                 const res = await fetch('https://kprism.kfintech.com/ipostatus/', {
                     method: 'POST',
@@ -82,6 +85,7 @@ async function getAllocation(cid, panNumber) {
                 return await res.text();
             }, formData);
 
+            // If captcha is successful, parse the result
             if (!response.includes('invalid captcha')) {
                 const $ = cheerio.load(response);
                 const name = $('span.qvalue').filter((i, el) => $(el).closest('div').text().includes('Name')).text().trim() || 'Name not found';
@@ -98,10 +102,12 @@ async function getAllocation(cid, panNumber) {
                 };
             } else {
                 console.log(`Captcha attempt ${attempt + 1} failed. Retrying...`);
+                await page.waitForTimeout(2000); // Delay before retrying
                 attempt++;
             }
         } catch (error) {
             console.error(`Error in attempt ${attempt + 1}: ${error.message}`);
+            await page.waitForTimeout(2000); // Delay before retrying
             attempt++;
         }
     }
