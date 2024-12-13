@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer');
 const cheerio = require('cheerio');
 const { spawn } = require('child_process');
+const { exec } = require('child_process');
 
 /**
  * Function to get IPO allocation from KFintech.
@@ -35,7 +36,11 @@ async function getAllocation(cid, panNumber) {
         "req_src": ""
     };
 
-    const browser = await puppeteer.launch({ headless: false, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+    const browser = await puppeteer.launch({
+        headless: true, // Ensure it's in headless mode
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu', '--remote-debugging-port=9222']
+    });
+
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: 'domcontentloaded' });
 
@@ -154,5 +159,15 @@ print(''.join(filter(str.isdigit, text.strip())))
         });
     });
 }
+
+// Launch with xvfb
+exec('xvfb-run node your-script.js', (error, stdout, stderr) => {
+    if (error) {
+        console.error(`exec error: ${error}`);
+        return;
+    }
+    console.log(`stdout: ${stdout}`);
+    console.error(`stderr: ${stderr}`);
+});
 
 module.exports = { getAllocation };
