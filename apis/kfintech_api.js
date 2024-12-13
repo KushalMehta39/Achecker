@@ -65,7 +65,7 @@ async function getAllocation(cid, panNumber) {
             // Retry logic if captcha text is the same as last time
             if (captchaText === lastCaptchaText) {
                 console.log('Captcha text has not changed. Retrying...');
-                await page.waitFor(2000); // Use waitFor instead of waitForTimeout
+                await page.waitForTimeout(2000); // Use waitForTimeout instead of waitFor
                 attempt++;
                 continue;
             }
@@ -102,12 +102,12 @@ async function getAllocation(cid, panNumber) {
                 };
             } else {
                 console.log(`Captcha attempt ${attempt + 1} failed. Retrying...`);
-                await page.waitFor(2000); // Use waitFor instead of waitForTimeout
+                await page.waitForTimeout(2000); // Use waitForTimeout instead of waitFor
                 attempt++;
             }
         } catch (error) {
             console.error(`Error in attempt ${attempt + 1}: ${error.message}`);
-            await page.waitFor(2000); // Use waitFor instead of waitForTimeout
+            await page.waitForTimeout(2000); // Use waitForTimeout instead of waitFor
             attempt++;
         }
     }
