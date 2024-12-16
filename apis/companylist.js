@@ -253,7 +253,7 @@ async function getAllCompanies() {
         ];
 
         // Log the results to console
-        console.log('All Companies:', allCompanies);
+        // console.log('All Companies:', allCompanies);
 
         // Optionally, write data to the file (uncomment to save)
         //await fs.promises.writeFile(filePath, JSON.stringify(allCompanies, null, 2)); // Using fs.promises.writeFile
