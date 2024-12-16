@@ -2,10 +2,10 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
 const fs = require('fs');
-// const path = require('path');
+const path = require('path');
 
 // Path to companies.json file
-// const filePath = path.join('C:', 'Users', 'intel', 'Desktop', 'Acheckerrr', 'companies.json');
+const filePath = path.join(__dirname, 'companies.json');
 
 // Function to fetch companies from Bigshare
 async function fetchCompaniesFromBigShare() {
@@ -252,7 +252,7 @@ async function getAllCompanies() {
         ];
 
         // Write data to file (overwrite existing data)
-        // fs.writeFileSync(filePath, JSON.stringify(allCompanies, null, 2));
+        fs.writeFileSync(filePath, JSON.stringify(allCompanies, null, 2));
         console.log('Companies data successfully saved to companies.json');
     } catch (error) {
         console.error('Error fetching all companies:', error);
@@ -260,4 +260,4 @@ async function getAllCompanies() {
 }
 
 // Call the function to fetch and save the companies data
-module.exports = { getAllCompanies };
+getAllCompanies();
