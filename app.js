@@ -1,7 +1,6 @@
 const express = require("express");
 const fs = require("fs").promises;
 const path = require("path");
-const { validatePanNumber } = require("./utils/validation");  // Add validation utility
 
 const app = express();
 app.use(express.json());
@@ -18,49 +17,34 @@ const allowedRegistrars = [
   "maashitla"
 ];
 
-// Centralized error handler
-function handleError(res, message, statusCode = 500) {
-  console.error(message);
-  res.status(statusCode).json({ error: message });
-}
-
 // POST request handler: Get allocation details
 app.post("/get-allocation", async (req, res) => {
   try {
     const { panNumber, companyName } = req.body;
 
     if (!panNumber || !companyName) {
-      return handleError(res, "PAN number and company name are required.", 400);
-    }
-
-    // Validate PAN number format (you could use a regex or a library)
-    if (!validatePanNumber(panNumber)) {
-      return handleError(res, "Invalid PAN number format.", 400);
+      return res.status(400).json({
+        error: "PAN number and company name are required."
+      });
     }
 
     const companiesPath = path.join(__dirname, "apis", "companies.json"); // Updated path
-    let companies = [];
-
-    try {
-      const companiesData = await fs.readFile(companiesPath, "utf-8");
-      companies = JSON.parse(companiesData);
-    } catch (err) {
-      return handleError(res, "Error reading companies data.", 500);
-    }
+    const companiesData = await fs.readFile(companiesPath, "utf-8");
+    const companies = JSON.parse(companiesData);
 
     const company = companies.find(
       (c) => c.name.toLowerCase() === companyName.toLowerCase()
     );
 
     if (!company) {
-      return handleError(res, "Company not found.", 404);
+      return res.status(404).json({ error: "Company not found." });
     }
 
     const { value: cid, registrar } = company;
     console.log(`Found registrar for ${companyName}: ${registrar}`);
 
     if (!allowedRegistrars.includes(registrar.toLowerCase())) {
-      return handleError(res, "Invalid registrar specified.", 400);
+      return res.status(400).json({ error: "Invalid registrar specified." });
     }
 
     const apiPath = path.join(__dirname, "apis", `${registrar.toLowerCase()}_api.js`);
@@ -70,10 +54,14 @@ app.post("/get-allocation", async (req, res) => {
       const result = await registrarApi.getAllocation(cid, panNumber);
       res.json({ status: "success", data: result });
     } catch (err) {
-      return handleError(res, `Failed to load or execute registrar API: ${err.message}`, 500);
+      console.error(`Error loading registrar API: ${err.message}`);
+      res.status(500).json({
+        error: `Failed to load or execute registrar API for registrar: ${registrar}`
+      });
     }
   } catch (error) {
-    return handleError(res, `Server Error: ${error.message}`);
+    console.error(`Server Error: ${error.message}`);
+    res.status(500).json({ error: "Internal server error." });
   }
 });
 
@@ -94,10 +82,14 @@ app.get("/get-all-companies", async (req, res) => {
     // Send the fetched companies data in the response
     res.json({
       message: "Data fetched and saved successfully",
-      data: companies
+      data: companies  // Include the actual company data in the response
     });
   } catch (error) {
-    return handleError(res, 'Failed to fetch company list.', 500);
+    // Log the error details
+    console.error('Error occurred in /get-all-companies route:', error);
+    
+    // Send the error response
+    res.status(500).json({ error: "Failed to fetch company list." });
   }
 });
 
