@@ -252,7 +252,7 @@ async function getAllCompanies() {
         ];
 
         // Write data to file (overwrite existing data)
-        fs.writeFileSync(filePath, JSON.stringify(allCompanies, null, 2));
+        // fs.writeFileSync(filePath, JSON.stringify(allCompanies, null, 2));
         console.log('Companies data successfully saved to companies.json');
     } catch (error) {
         console.error('Error fetching all companies:', error);
