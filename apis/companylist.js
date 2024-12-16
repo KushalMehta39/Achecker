@@ -265,3 +265,5 @@ async function getAllCompanies() {
 
 // Export the function
 module.exports = { getAllCompanies };
+
+getAllCompanies();
