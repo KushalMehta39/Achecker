@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Path to companies.json file
-const filePath = path.join(__dirname, 'companies.json');
+const filePath = path.join(__dirname, "apis", 'companies.json');
 
 // Function to fetch companies from Bigshare
 async function fetchCompaniesFromBigShare() {
