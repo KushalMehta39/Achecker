@@ -68,7 +68,7 @@ app.post("/get-allocation", async (req, res) => {
 // GET request handler: Get all companies
 app.get("/get-all-companies", async (req, res) => {
   try {
-    const companyListPath = path.join(__dirname, "apis", "companylist.js"); // Updated path
+    const companyListPath = path.join(__dirname, "apis", "companylist.js");
 
     // Clear cache for live updates
     delete require.cache[require.resolve(companyListPath)];
@@ -76,26 +76,18 @@ app.get("/get-all-companies", async (req, res) => {
     // Dynamically load companylist.js
     const companyList = require(companyListPath);
 
-    // Check if the function exists
-    if (!companyList.getAllCompanies) {
-      throw new Error("getAllCompanies is not a function");
-    }
-
     // Call the function to get company data
     await companyList.getAllCompanies();
 
-    // Read companies data from the file
-    const companiesPath = path.join(__dirname, "apis", "companies.json");
-    const companiesData = await fs.readFile(companiesPath, "utf-8");
-    const companies = JSON.parse(companiesData);
-
-    // Send the response with message and companies data
+    // Send a success message
     res.json({
-      message: "Data fetched and saved successfully",
-      companies: companies
+      message: "Data fetched and saved successfully"
     });
   } catch (error) {
-    console.error(`Error fetching companies: ${error.message}`);
+    // Log the error details
+    console.error('Error occurred in /get-all-companies route:', error);
+    
+    // Send the error response
     res.status(500).json({ error: "Failed to fetch company list." });
   }
 });
