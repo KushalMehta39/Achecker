@@ -20,7 +20,7 @@ async function getAllocation(cid, panNumber) {
             httpsAgent: agent
         });
 
-        console.log('Cameo response:', response.data);
+        // console.log('Cameo response:', response.data);
 
         if (response.data && Array.isArray(response.data) && response.data.length > 0) {
             const { holder: name, allotedShares } = response.data[0];
