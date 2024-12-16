@@ -52,16 +52,7 @@ app.post("/get-allocation", async (req, res) => {
       delete require.cache[require.resolve(apiPath)];
       const registrarApi = require(apiPath);
       const result = await registrarApi.getAllocation(cid, panNumber);
-
-      // Send a response with the message and company data
-      res.json({
-        message: "Data fetched and saved successfully",
-        companies: companies.map(c => ({
-          name: c.name,
-          value: c.value,
-          registrar: c.registrar
-        }))
-      });
+      res.json({ status: "success", data: result });
     } catch (err) {
       console.error(`Error loading registrar API: ${err.message}`);
       res.status(500).json({
@@ -92,12 +83,7 @@ app.get("/get-all-companies", async (req, res) => {
 
     // Call the function to get company data
     const companies = await companyList.getAllCompanies();
-
-    // Return the data in the desired format
-    res.json({
-      message: "Data fetched and saved successfully",
-      companies: companies
-    });
+    res.json({ status: "success", data: companies });
   } catch (error) {
     console.error(`Error fetching companies: ${error.message}`);
     res.status(500).json({ error: "Failed to fetch company list." });
