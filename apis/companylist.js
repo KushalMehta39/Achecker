@@ -260,4 +260,8 @@ async function getAllCompanies() {
         console.error('Error fetching all companies:', error);
     }
 }
+// companylist.js
+module.exports = {
+  getAllCompanies
+};
 
