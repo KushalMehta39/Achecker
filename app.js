@@ -77,11 +77,12 @@ app.get("/get-all-companies", async (req, res) => {
     const companyList = require(companyListPath);
 
     // Call the function to get company data
-    await companyList.getAllCompanies();
+    const companies = await companyList.getAllCompanies();
 
-    // Send a success message
+    // Send the fetched companies data in the response
     res.json({
-      message: "Data fetched and saved successfully"
+      message: "Data fetched and saved successfully",
+      data: companies  // Include the actual company data in the response
     });
   } catch (error) {
     // Log the error details
