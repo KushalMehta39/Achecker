@@ -28,7 +28,7 @@ app.post("/get-allocation", async (req, res) => {
       });
     }
 
-    const companiesPath = path.join(__dirname, "companies.json");
+    const companiesPath = path.join(__dirname, "apis", "companies.json"); // Updated path
     const companiesData = await fs.readFile(companiesPath, "utf-8");
     const companies = JSON.parse(companiesData);
 
@@ -68,7 +68,7 @@ app.post("/get-allocation", async (req, res) => {
 // GET request handler: Get all companies
 app.get("/get-all-companies", async (req, res) => {
   try {
-    const companyListPath = path.join(__dirname, "companylist.js");
+    const companyListPath = path.join(__dirname, "apis", "companylist.js"); // Updated path
 
     // Clear cache for live updates
     delete require.cache[require.resolve(companyListPath)];
