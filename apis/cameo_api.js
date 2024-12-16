@@ -26,7 +26,7 @@ async function getAllocation(cid, panNumber) {
             const { holder: name, allotedShares } = response.data[0];
             return { name, allottedShares: allotedShares };
         } else {
-            console.error('Response data format is not as expected:', response.data);
+            console.error('Response data format is not as expected:');
             return { name: "Not found", allottedShares: "Not found" };
         }
     } catch (error) {
