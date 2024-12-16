@@ -254,7 +254,7 @@ async function getAllCompanies() {
         ];
 
         // Write data to the file (overwrite existing data)
-        await fs.promises.writeFile(filePath, JSON.stringify(allCompanies, null, 2)); // Using fs.promises.writeFile
+        //await fs.promises.writeFile(filePath, JSON.stringify(allCompanies, null, 2)); // Using fs.promises.writeFile
         console.log('Companies data successfully saved to companies.json');
     } catch (error) {
         console.error('Error fetching all companies:', error);
