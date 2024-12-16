@@ -82,8 +82,18 @@ app.get("/get-all-companies", async (req, res) => {
     }
 
     // Call the function to get company data
-    const companies = await companyList.getAllCompanies();
-    res.json({ status: "success", data: companies });
+    await companyList.getAllCompanies();
+
+    // Read companies data from the file
+    const companiesPath = path.join(__dirname, "apis", "companies.json");
+    const companiesData = await fs.readFile(companiesPath, "utf-8");
+    const companies = JSON.parse(companiesData);
+
+    // Send the response with message and companies data
+    res.json({
+      message: "Data fetched and saved successfully",
+      companies: companies
+    });
   } catch (error) {
     console.error(`Error fetching companies: ${error.message}`);
     res.status(500).json({ error: "Failed to fetch company list." });
