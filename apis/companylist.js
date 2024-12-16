@@ -2,10 +2,10 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
 const fs = require('fs');
-const path = require('path');
+// const path = require('path');
 
 // Path to companies.json file
-const filePath = path.join('C:', 'Users', 'intel', 'Desktop', 'Acheckerrr', 'companies.json');
+// const filePath = path.join('C:', 'Users', 'intel', 'Desktop', 'Acheckerrr', 'companies.json');
 
 // Function to fetch companies from Bigshare
 async function fetchCompaniesFromBigShare() {
