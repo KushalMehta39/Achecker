@@ -1,5 +1,10 @@
 [
   {
+    "name": "DHANLAXMI CROP SCIENCE LIMITED",
+    "value": "484",
+    "registrar": "Bigshare"
+  },
+  {
     "name": "RAJESH POWER SERVICES LIMITED",
     "value": "483",
     "registrar": "Bigshare"
@@ -33,6 +38,11 @@
     "name": "TOLINS TYRES LIMITED",
     "value": "TTY",
     "registrar": "Cameo"
+  },
+  {
+    "name": "KOSAMATTAM FINANCE LTD NCD XXXII",
+    "value": "KFZF~kosamattam32~0~12/12/2024~12/12/2024~BON",
+    "registrar": "Kfintech"
   },
   {
     "name": "PROPSHARE PLATINA -SM REIT -IPO",
@@ -80,24 +90,14 @@
     "registrar": "Kfintech"
   },
   {
-    "name": "Neelam Linens & Garments (India) Pvt Ltd",
-    "value": "74",
-    "registrar": "Purva"
-  },
-  {
-    "name": "Emerald Tyre Manufacturers Limited - SME IPO",
-    "value": "11793",
+    "name": "Toss The Coin Limited-SME-IPO",
+    "value": "11794",
     "registrar": "Linkintime"
   },
   {
-    "name": "Ganesh Infraworld Limited - SME IPO",
-    "value": "11792",
-    "registrar": "Linkintime"
-  },
-  {
-    "name": "C2C Advanced Systems Limited - SME IPO",
-    "value": "11791",
-    "registrar": "Linkintime"
+    "name": "KOSAMATTAM FINANCE LTD NCD XXXII",
+    "value": "KFZF~kosamattam32~0~12/12/2024~12/12/2024~BON",
+    "registrar": "Kfin2"
   },
   {
     "name": "PROPSHARE PLATINA -SM REIT -IPO",
@@ -190,63 +190,8 @@
     "registrar": "Maashitla"
   },
   {
-    "name": "ABHA POWER AND STEEL LIMITED",
-    "value": "118",
-    "registrar": "Skylinerta"
-  },
-  {
-    "name": "AESTHETIK ENGINEERS LIMITED",
-    "value": "416",
-    "registrar": "Skylinerta"
-  },
-  {
-    "name": "AVI ANSH TEXTILE LIMITED",
-    "value": "388",
-    "registrar": "Skylinerta"
-  },
-  {
-    "name": "DIVYADHAN RECYCLING INDUSTRIES LIMITED",
-    "value": "527",
-    "registrar": "Skylinerta"
-  },
-  {
-    "name": "GAJANAND INTERNATIONAL LIMITED",
-    "value": "462",
-    "registrar": "Skylinerta"
-  },
-  {
-    "name": "INNOMET ADVANCED MATERIALS LIMITED",
-    "value": "611",
-    "registrar": "Skylinerta"
-  },
-  {
-    "name": "KALANA ISPAT LIMITED",
-    "value": "571",
-    "registrar": "Skylinerta"
-  },
-  {
-    "name": "MACH CONFERENCES AND EVENTS LIMITED",
-    "value": "124",
-    "registrar": "Skylinerta"
-  },
-  {
-    "name": "MY MUDRA FINCORP LIMITED",
-    "value": "371",
-    "registrar": "Skylinerta"
-  },
-  {
-    "name": "NISUS FINANCE SERVICES CO LIMITED",
-    "value": "1813",
-    "registrar": "Skylinerta"
-  },
-  {
-    "name": "SHARE SAMADHAN LIMITED",
-    "value": "460",
-    "registrar": "Skylinerta"
-  },
-  {
-    "name": "USHA FINANCIAL SERVICES LIMITED",
-    "value": "151",
+    "name": "JUNGLE CAMPS INDIA LIMITED",
+    "value": "3065",
     "registrar": "Skylinerta"
   }
 ]
