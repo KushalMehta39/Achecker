@@ -1,7 +1,6 @@
 const express = require("express");
 const fs = require("fs").promises;
 const path = require("path");
-const { exec } = require("child_process");
 
 const app = express();
 app.use(express.json());
@@ -53,7 +52,16 @@ app.post("/get-allocation", async (req, res) => {
       delete require.cache[require.resolve(apiPath)];
       const registrarApi = require(apiPath);
       const result = await registrarApi.getAllocation(cid, panNumber);
-      res.json({ status: "success", data: result });
+
+      // Send a response with the message and company data
+      res.json({
+        message: "Data fetched and saved successfully",
+        companies: companies.map(c => ({
+          name: c.name,
+          value: c.value,
+          registrar: c.registrar
+        }))
+      });
     } catch (err) {
       console.error(`Error loading registrar API: ${err.message}`);
       res.status(500).json({
@@ -84,47 +92,17 @@ app.get("/get-all-companies", async (req, res) => {
 
     // Call the function to get company data
     const companies = await companyList.getAllCompanies();
-    
-    // Push the updated companies data to Git after it's fetched
-    await pushChangesToGit();
 
-    res.json({ status: "success", data: companies });
+    // Return the data in the desired format
+    res.json({
+      message: "Data fetched and saved successfully",
+      companies: companies
+    });
   } catch (error) {
     console.error(`Error fetching companies: ${error.message}`);
     res.status(500).json({ error: "Failed to fetch company list." });
   }
 });
-
-// Function to push updated file to git
-async function pushChangesToGit() {
-  try {
-    // Stage the file
-    await execPromise('git add apis/companies.json');
-    
-    // Commit the changes
-    await execPromise('git commit -m "Update companies.json with new data"');
-    
-    // Push the changes to the remote repository
-    await execPromise('git push origin main');
-    
-    console.log('Changes pushed to Git successfully');
-  } catch (error) {
-    console.error('Error pushing changes to Git:', error);
-  }
-}
-
-// Helper function to use exec in a promise-based way
-function execPromise(command) {
-  return new Promise((resolve, reject) => {
-    exec(command, (error, stdout, stderr) => {
-      if (error) {
-        reject(`Error executing command: ${error.message}`);
-      } else {
-        resolve(stdout || stderr);
-      }
-    });
-  });
-}
 
 // Start the server
 const PORT = 3000;
