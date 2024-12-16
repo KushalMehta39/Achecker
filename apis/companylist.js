@@ -218,6 +218,7 @@ async function fetchCompaniesFromMaashitla() {
 }
 
 // Function to fetch and save all companies data
+// Function to fetch and save all companies data
 async function getAllCompanies() {
     try {
         const [
@@ -253,7 +254,7 @@ async function getAllCompanies() {
         ];
 
         // Write data to the file (overwrite existing data)
-        await fs.writeFile(filePath, JSON.stringify(allCompanies, null, 2));
+        await fs.promises.writeFile(filePath, JSON.stringify(allCompanies, null, 2)); // Using fs.promises.writeFile
         console.log('Companies data successfully saved to companies.json');
     } catch (error) {
         console.error('Error fetching all companies:', error);
