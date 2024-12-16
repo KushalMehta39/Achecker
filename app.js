@@ -70,25 +70,23 @@ app.get("/get-all-companies", async (req, res) => {
   try {
     const companyListPath = path.join(__dirname, "apis", "companylist.js");
 
-    // Clear cache for live updates
+    // Clear the require cache for live updates
     delete require.cache[require.resolve(companyListPath)];
 
     // Dynamically load companylist.js
     const companyList = require(companyListPath);
 
-    // Call the function to get company data
+    // Get the list of companies
     const companies = await companyList.getAllCompanies();
 
-    // Send the fetched companies data in the response
+    // Send the companies data in the response body
     res.json({
       message: "Data fetched and saved successfully",
-      data: companies  // Include the actual company data in the response
+      data: companies  // This sends the actual data to Postman
     });
   } catch (error) {
-    // Log the error details
+    // If an error occurs, send an error message
     console.error('Error occurred in /get-all-companies route:', error);
-    
-    // Send the error response
     res.status(500).json({ error: "Failed to fetch company list." });
   }
 });
