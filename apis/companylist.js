@@ -240,6 +240,7 @@ async function getAllCompanies() {
             fetchCompaniesFromMaashitla()
         ]);
 
+        // Combine all companies data
         const allCompanies = [
             ...bigShareCompanies,
             ...cameoCompanies,
@@ -251,13 +252,13 @@ async function getAllCompanies() {
             ...skylinertaCompanies
         ];
 
-        // Write data to file (overwrite existing data)
-        fs.writeFileSync(filePath, JSON.stringify(allCompanies, null, 2));
+        // Write data to the file (overwrite existing data)
+        await fs.writeFile(filePath, JSON.stringify(allCompanies, null, 2));
         console.log('Companies data successfully saved to companies.json');
     } catch (error) {
         console.error('Error fetching all companies:', error);
     }
 }
 
-// Call the function to fetch and save the companies data
-getAllCompanies();
+// Export the function
+module.exports = { getAllCompanies };
