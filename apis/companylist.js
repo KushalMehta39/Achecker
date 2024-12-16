@@ -217,7 +217,7 @@ async function fetchCompaniesFromMaashitla() {
     }
 }
 
-// Function to fetch and save all companies data
+// Function to fetch and print all companies data
 async function getAllCompanies() {
     try {
         const [
@@ -252,12 +252,9 @@ async function getAllCompanies() {
             ...skylinertaCompanies
         ];
 
-        // Log the results to console
-        // console.log('All Companies:', allCompanies);
+        // Print the combined companies data to the console
+        console.log(JSON.stringify(allCompanies, null, 2));
 
-        // Optionally, write data to the file (uncomment to save)
-        //await fs.promises.writeFile(filePath, JSON.stringify(allCompanies, null, 2)); // Using fs.promises.writeFile
-        console.log('Companies data successfully saved to companies.json');
     } catch (error) {
         console.error('Error fetching all companies:', error);
     }
