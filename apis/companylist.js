@@ -252,7 +252,7 @@ async function getAllCompanies() {
             ...maashitlaCompanies,
             ...skylinertaCompanies
         ];
-
+        return allCompanies;
         // Print the combined companies data to the console
         console.log(JSON.stringify(allCompanies, null, 2));
 
