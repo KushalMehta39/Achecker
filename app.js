@@ -2,25 +2,36 @@ const express = require("express");
 const fs = require("fs").promises;
 const path = require("path");
 
-
 const app = express();
 app.use(express.json());
 
 // Whitelist of allowed registrars
-const allowedRegistrars = ["bigshare", "cameo", "kfintech", "purva", "kfin2", "skylinerta", "linkintime", "maashitla"];
+const allowedRegistrars = [
+  "bigshare",
+  "cameo",
+  "kfintech",
+  "purva",
+  "kfin2",
+  "skylinerta",
+  "linkintime",
+  "maashitla"
+];
 
+// POST request handler: Get allocation details
 app.post("/get-allocation", async (req, res) => {
   try {
     const { panNumber, companyName } = req.body;
 
     if (!panNumber || !companyName) {
-      return res.status(400).json({ error: "PAN number and company name are required." });
+      return res.status(400).json({
+        error: "PAN number and company name are required."
+      });
     }
 
-    // Step 1: Load companies.json
-    const companies = JSON.parse(await fs.readFile("companies.json", "utf-8"));
+    const companiesPath = path.join(__dirname, "companies.json");
+    const companiesData = await fs.readFile(companiesPath, "utf-8");
+    const companies = JSON.parse(companiesData);
 
-    // Step 2: Find the company details
     const company = companies.find(
       (c) => c.name.toLowerCase() === companyName.toLowerCase()
     );
@@ -32,33 +43,50 @@ app.post("/get-allocation", async (req, res) => {
     const { value: cid, registrar } = company;
     console.log(`Found registrar for ${companyName}: ${registrar}`);
 
-    // Step 3: Validate registrar
     if (!allowedRegistrars.includes(registrar.toLowerCase())) {
       return res.status(400).json({ error: "Invalid registrar specified." });
     }
 
-    // Step 4: Dynamically load the registrar API with cache clearing
     const apiPath = path.join(__dirname, "apis", `${registrar.toLowerCase()}_api.js`);
-
     try {
-      // Clear module cache for live reloading
       delete require.cache[require.resolve(apiPath)];
-
-      // Load the latest version of the API module
       const registrarApi = require(apiPath);
-
-      // Step 5: Call the API with CID and PAN number
-      const result = await registrarApi.getAllocation(cid, panNumber);  // Same call for every registrar
-
-      // Step 6: Send the response
+      const result = await registrarApi.getAllocation(cid, panNumber);
       res.json({ status: "success", data: result });
     } catch (err) {
       console.error(`Error loading registrar API: ${err.message}`);
-      res.status(500).json({ error: `Failed to load registrar API: ${registrar}` });
+      res.status(500).json({
+        error: `Failed to load or execute registrar API for registrar: ${registrar}`
+      });
     }
   } catch (error) {
     console.error(`Server Error: ${error.message}`);
     res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+// GET request handler: Get all companies
+app.get("/get-all-companies", async (req, res) => {
+  try {
+    const companyListPath = path.join(__dirname, "companylist.js");
+
+    // Clear cache for live updates
+    delete require.cache[require.resolve(companyListPath)];
+
+    // Dynamically load companylist.js
+    const companyList = require(companyListPath);
+
+    // Check if the function exists
+    if (!companyList.getAllCompanies) {
+      throw new Error("getAllCompanies is not a function");
+    }
+
+    // Call the function to get company data
+    const companies = await companyList.getAllCompanies();
+    res.json({ status: "success", data: companies });
+  } catch (error) {
+    console.error(`Error fetching companies: ${error.message}`);
+    res.status(500).json({ error: "Failed to fetch company list." });
   }
 });
 
