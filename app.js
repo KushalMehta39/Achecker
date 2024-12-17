@@ -20,43 +20,60 @@ const allowedRegistrars = [
 // POST request handler: Get allocation details
 app.post("/get-allocation", async (req, res) => {
   try {
-    const { panNumber, companyName } = req.body;
+    const { panNumber, companyName, cid, registrar } = req.body;
 
+    // Validate request body
     if (!panNumber || !companyName) {
       return res.status(400).json({
         error: "PAN number and company name are required."
       });
     }
 
-    const companiesPath = path.join(__dirname, "apis", "companies.json"); // Updated path
-    const companiesData = await fs.readFile(companiesPath, "utf-8");
-    const companies = JSON.parse(companiesData);
+    // Allow either CID and Registrar directly OR company lookup
+    let finalCid = cid;
+    let finalRegistrar = registrar;
 
-    const company = companies.find(
-      (c) => c.name.toLowerCase() === companyName.toLowerCase()
-    );
+    if (!cid || !registrar) {
+      // If CID and Registrar are not provided, fetch from companies.json
+      const companiesPath = path.join(__dirname, "apis", "companies.json");
+      const companiesData = await fs.readFile(companiesPath, "utf-8");
+      const companies = JSON.parse(companiesData);
 
-    if (!company) {
-      return res.status(404).json({ error: "Company not found." });
+      const company = companies.find(
+        (c) => c.name.toLowerCase() === companyName.toLowerCase()
+      );
+
+      if (!company) {
+        return res.status(404).json({ error: "Company not found." });
+      }
+
+      finalCid = company.value;
+      finalRegistrar = company.registrar;
     }
 
-    const { value: cid, registrar } = company;
-    console.log(`Found registrar for ${companyName}: ${registrar}`);
+    console.log(`Final Registrar: ${finalRegistrar}, CID: ${finalCid}`);
 
-    if (!allowedRegistrars.includes(registrar.toLowerCase())) {
+    // Check if the registrar is allowed
+    if (!allowedRegistrars.includes(finalRegistrar.toLowerCase())) {
       return res.status(400).json({ error: "Invalid registrar specified." });
     }
 
-    const apiPath = path.join(__dirname, "apis", `${registrar.toLowerCase()}_api.js`);
+    // Dynamically load the appropriate registrar API
+    const apiPath = path.join(__dirname, "apis", `${finalRegistrar.toLowerCase()}_api.js`);
+
     try {
       delete require.cache[require.resolve(apiPath)];
       const registrarApi = require(apiPath);
-      const result = await registrarApi.getAllocation(cid, panNumber);
+
+      // Call the API method with CID and PAN number
+      const result = await registrarApi.getAllocation(finalCid, panNumber);
+
+      // Send the response back to the client
       res.json({ status: "success", data: result });
     } catch (err) {
       console.error(`Error loading registrar API: ${err.message}`);
       res.status(500).json({
-        error: `Failed to load or execute registrar API for registrar: ${registrar}`
+        error: `Failed to load or execute registrar API for registrar: ${finalRegistrar}`
       });
     }
   } catch (error) {
@@ -68,7 +85,7 @@ app.post("/get-allocation", async (req, res) => {
 // GET request handler: Get all companies
 app.get("/get-all-companies", async (req, res) => {
   try {
-    const companyListPath = path.join(__dirname, "apis", "companylist.js");
+    const companyListPath = path.join(__dirname, "companylist.js");
 
     // Clear the require cache for live updates
     delete require.cache[require.resolve(companyListPath)];
