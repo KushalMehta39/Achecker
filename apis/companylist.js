@@ -31,6 +31,30 @@ async function fetchCompaniesFromBigShare() {
     }
 }
 
+// Function to fetch companies from Cameo
+async function fetchCompaniesFromCameo() {
+    const url = 'https://ipostatus1.cameoindia.com/';
+
+    try {
+        const { data } = await axios.get(url);
+        const $ = cheerio.load(data);
+        const companies = [];
+
+        $('#drpCompany option').each((_, element) => {
+            const value = $(element).attr('value');
+            const name = $(element).text().trim();
+            if (value && name && name !== '-------  Select Company     -------') {
+                companies.push({ name, value, registrar: 'Cameo' });
+            }
+        });
+
+        return companies;
+    } catch (error) {
+        console.error('Error fetching companies from Cameo:', error);
+        throw new Error('Failed to fetch companies from Cameo');
+    }
+}
+
 // Function to fetch companies from KFintech
 async function fetchCompaniesFromKFintech() {
     const url = 'https://ipostatus.kfintech.com/';
@@ -77,6 +101,30 @@ async function fetchCompaniesFromPurvaShare() {
     } catch (error) {
         console.error('Error fetching companies from Purva Share:', error);
         throw new Error('Failed to fetch companies from Purva Share');
+    }
+}
+
+// Function to fetch companies from KFintech (Alternative URL)
+async function fetchCompaniesFromKosmicKFintech() {
+    const url = 'https://kosmic.kfintech.com/ipostatus/';
+
+    try {
+        const { data } = await axios.get(url);
+        const $ = cheerio.load(data);
+        const companies = [];
+
+        $('#ddl_ipo option').each((_, element) => {
+            const value = $(element).attr('value');
+            const name = $(element).text().trim();
+            if (value && name && name !== '--Select--') {
+                companies.push({ name, value, registrar: 'Kfin2' });
+            }
+        });
+
+        return companies;
+    } catch (error) {
+        console.error('Error fetching companies from Kosmic KFintech:', error);
+        throw new Error('Failed to fetch companies from Kosmic KFintech');
     }
 }
 
@@ -174,15 +222,19 @@ async function getAllCompanies() {
     try {
         const [
             bigShareCompanies,
+            cameoCompanies,
             kfintechCompanies,
-            purvaShareCompanies,
+            kosmicKfintechCompanies,
             linkInTimeCompanies,
+            purvaShareCompanies,
             skylinertaCompanies,
             maashitlaCompanies
         ] = await Promise.all([
             fetchCompaniesFromBigShare(),
+            fetchCompaniesFromCameo(),
             fetchCompaniesFromKFintech(),
             fetchCompaniesFromPurvaShare(),
+            fetchCompaniesFromKosmicKFintech(),
             fetchCompaniesFromLinkInTime(),
             fetchCompaniesFromSkylinerta(),
             fetchCompaniesFromMaashitla()
@@ -191,20 +243,23 @@ async function getAllCompanies() {
         // Combine all companies data
         const allCompanies = [
             ...bigShareCompanies,
+            ...cameoCompanies,
             ...kfintechCompanies,
+            ...kosmicKfintechCompanies,
             ...purvaShareCompanies,
             ...linkInTimeCompanies,
             ...maashitlaCompanies,
             ...skylinertaCompanies
         ];
         return allCompanies;
+        // Print the combined companies data to the console
+        console.log(JSON.stringify(allCompanies, null, 2));
 
     } catch (error) {
         console.error('Error fetching all companies:', error);
     }
 }
-
 // companylist.js
 module.exports = {
-    getAllCompanies
+  getAllCompanies
 };
