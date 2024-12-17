@@ -218,7 +218,6 @@ async function fetchCompaniesFromMaashitla() {
 }
 
 // Function to fetch and print all companies data
-// Function to fetch and print all companies data
 async function getAllCompanies() {
     try {
         const [
