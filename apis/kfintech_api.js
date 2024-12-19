@@ -2,7 +2,6 @@ const puppeteer = require('puppeteer');
 const cheerio = require('cheerio');
 const { spawn } = require('child_process');
 
-// Function to get IPO allocation from KFintech
 async function getAllocation(cid, panNumber) {
     const url = 'https://kprism.kfintech.com/ipostatus/';
 
@@ -24,7 +23,6 @@ async function getAllocation(cid, panNumber) {
         "txt_cdsl_clid": "",
         "txt_pan": panNumber,
         "txt_captcha": "",
-        "txt_conf_pan": "",
         "_h_query": "pan",
         "encrypt_payload": "N",
         "req_src": ""
@@ -33,104 +31,82 @@ async function getAllocation(cid, panNumber) {
     const browser = await puppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        executablePath: '/usr/bin/chromium-browser'  // Specify the path to Chromium
+        executablePath: '/usr/bin/chromium-browser'
     });
-    const page = await browser.newPage();
+    let page = await browser.newPage();
     await page.goto(url, { waitUntil: 'domcontentloaded' });
 
-    const maxRetries = 3;
-    let attempt = 0;
-    let captchaText;
-    let lastCaptchaText = '';  // Track previous captcha text
+    const maxRetries = 2;
+    let attempts = 0;
 
-    while (attempt < maxRetries) {
+    while (attempts < maxRetries) {
         try {
-            // Capture and process captcha
             const captchaSelector = 'img#captchaimg';
-            await page.waitForSelector(captchaSelector, { timeout: 10000 }); // Increase timeout to 10 seconds
+            await page.waitForSelector(captchaSelector, { timeout: 5000 });
             const captchaImage = await page.$(captchaSelector);
 
-            if (!captchaImage) {
-                console.log("Captcha image not found.");
-                throw new Error("Captcha image not found.");
-            }
+            if (!captchaImage) throw new Error("Captcha image not found.");
 
             const imageBuffer = await captchaImage.screenshot();
-            captchaText = await processCaptchaBuffer(imageBuffer);
-            console.log(`Captured Captcha Text for PAN ${panNumber}: ${captchaText}`);
+            const captchaText = await processCaptchaBuffer(imageBuffer);
+            console.log(`Captcha for PAN ${panNumber}: ${captchaText}`);
 
-            // Avoid retrying with the same captcha text
-            if (captchaText === lastCaptchaText) {
-                console.log('Captcha text has not changed. Retrying...');
-                attempt++;
-                continue;  // Skip this loop and retry captcha
-            }
-
-            lastCaptchaText = captchaText; // Update last captcha text
-
-            // Set captcha text in form data
             formData.txt_captcha = captchaText;
-
-            // Get VIEWSTATE and EVENTVALIDATION values
             formData.__VIEWSTATE = await page.$eval('input[name="__VIEWSTATE"]', el => el.value);
             formData.__EVENTVALIDATION = await page.$eval('input[name="__EVENTVALIDATION"]', el => el.value);
 
-            // Submit the form
             const response = await page.evaluate(async (formData) => {
-                const response = await fetch('https://kprism.kfintech.com/ipostatus/', {
+                const resp = await fetch('https://kprism.kfintech.com/ipostatus/', {
                     method: 'POST',
                     body: new URLSearchParams(formData),
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 });
-                return await response.text();
+                return await resp.text();
             }, formData);
 
-            // Handle captcha error or incorrect text
-            if (!response.includes("invalid captcha")) {
-                const $ = cheerio.load(response);
-                const name = $('span.qvalue').filter((i, el) => $(el).closest('div').text().includes('Name')).text().trim() || 'Name not found';
-                let allottedShares = $('span.qvalue').filter((i, el) => $(el).closest('div').text().includes('Alloted')).text().trim() || 'Allotted shares not found';
+            const $ = cheerio.load(response);
+            const errorScript = $('script[type="text/javascript"]').text();
 
-                // Handle cases where no data is found
-                if (name === 'Name not found' && allottedShares === 'Allotted shares not found') {
-                    await page.close();
-                    await browser.close();
-                    return { name: '', allottedShares: 'Not Applied' };
-                }
-
-                // Handle case where allotted shares are 0
-                if (allottedShares === '0') {
-                    await page.close();
-                    await browser.close();
-                    return { name, allottedShares: 'Not allotted' };
-                }
-
-                // Handle case where shares are allotted
-                if (allottedShares) {
-                    await page.close();
-                    await browser.close();
-                    return { name, allottedShares: `${allottedShares} shares allotted` };
-                }
-            } else {
-                console.log(`Captcha attempt ${attempt + 1} failed. Retrying...`);
-                attempt++;
+            if (errorScript.includes("CAPTCHA is invalid or Expired")) {
+                console.log("Invalid captcha. Retrying...");
+                attempts++;
+                await page.reload({ waitUntil: 'domcontentloaded' });
+                continue;
             }
+
+            if (errorScript.includes("PAN details  not available.")) {
+                console.log("No data available for PAN.");
+                await browser.close();
+                return {
+                    name: '',
+                    allottedShares: "Not Applied"
+                };
+            }
+
+            const name = $('span.qvalue').filter((_, el) => $(el).closest('div').text().includes('Name')).text().trim() || 'Name not found';
+            const allottedShares = $('span.qvalue').filter((_, el) => $(el).closest('div').text().includes('Alloted')).text().trim() || '0';
+
+            await browser.close();
+            return {
+                name,
+                allottedShares: allottedShares === '0' ? 'Not allotted' : `${allottedShares} shares allotted`
+            };
         } catch (error) {
-            console.error(`Error processing attempt ${attempt + 1}: ${error.message}`);
-            attempt++;
+            console.error(`Attempt ${attempts + 1} failed for PAN ${panNumber}: ${error.message}`);
         }
     }
 
-    await page.close();
     await browser.close();
-    throw new Error('Max captcha attempts reached. Please try again later.');
-}
 
-// Function to process the captcha image buffer
+    // Return response after all retries fail
+    return {
+                status: "error",
+                message: "Retry"
+        } 
+    };
+
 async function processCaptchaBuffer(imageBuffer) {
     return new Promise((resolve, reject) => {
-        console.log('Executing Python script with image buffer');
-
         const pythonProcess = spawn('python3', ['-c', `
 import sys
 import cv2
@@ -154,25 +130,21 @@ print(''.join(filter(str.isdigit, text.strip())))
         pythonProcess.stdin.write(imageBuffer);
         pythonProcess.stdin.end();
 
-        let data = '';
+        let result = '';
         pythonProcess.stdout.on('data', (chunk) => {
-            data += chunk.toString();
+            result += chunk.toString();
         });
 
         pythonProcess.stderr.on('data', (error) => {
-            console.error(`Python script error: ${error}`);
-            reject(`Python script error: ${error}`);
+            console.error(`Captcha processing error: ${error}`);
+            reject(error);
         });
 
         pythonProcess.on('close', (code) => {
-            if (code !== 0) {
-                reject(`Python script exited with code ${code}`);
-            } else {
-                resolve(data.trim());
-            }
+            if (code !== 0) reject(`Python process exited with code ${code}`);
+            else resolve(result.trim());
         });
     });
 }
 
-// Export the function for use in the main application
 module.exports = { getAllocation };
