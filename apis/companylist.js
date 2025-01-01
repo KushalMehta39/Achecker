@@ -226,14 +226,14 @@ async function getAllCompanies() {
             kfintechCompanies,
             // kosmicKfintechCompanies,
             linkInTimeCompanies,
-            purvaShareCompanies,
+            // purvaShareCompanies,
             skylinertaCompanies,
             maashitlaCompanies
         ] = await Promise.all([
             fetchCompaniesFromBigShare(),
             // fetchCompaniesFromCameo(),
             fetchCompaniesFromKFintech(),
-            fetchCompaniesFromPurvaShare(),
+            // fetchCompaniesFromPurvaShare(),
             // fetchCompaniesFromKosmicKFintech(),
             fetchCompaniesFromLinkInTime(),
             fetchCompaniesFromSkylinerta(),
@@ -246,7 +246,7 @@ async function getAllCompanies() {
             // ...cameoCompanies,
             ...kfintechCompanies,
             // ...kosmicKfintechCompanies,
-            ...purvaShareCompanies,
+            // ...purvaShareCompanies,
             ...linkInTimeCompanies,
             ...maashitlaCompanies,
             ...skylinertaCompanies
