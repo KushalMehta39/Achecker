@@ -222,19 +222,19 @@ async function getAllCompanies() {
     try {
         const [
             bigShareCompanies,
-            // cameoCompanies,
+            cameoCompanies,
             kfintechCompanies,
-            // kosmicKfintechCompanies,
+            kosmicKfintechCompanies,
             linkInTimeCompanies,
-            // purvaShareCompanies,
+            purvaShareCompanies,
             skylinertaCompanies,
             maashitlaCompanies
         ] = await Promise.all([
             fetchCompaniesFromBigShare(),
-            // fetchCompaniesFromCameo(),
+            fetchCompaniesFromCameo(),
             fetchCompaniesFromKFintech(),
-            // fetchCompaniesFromPurvaShare(),
-            // fetchCompaniesFromKosmicKFintech(),
+            fetchCompaniesFromPurvaShare(),
+            fetchCompaniesFromKosmicKFintech(),
             fetchCompaniesFromLinkInTime(),
             fetchCompaniesFromSkylinerta(),
             fetchCompaniesFromMaashitla()
@@ -243,10 +243,10 @@ async function getAllCompanies() {
         // Combine all companies data
         const allCompanies = [
             ...bigShareCompanies,
-            // ...cameoCompanies,
+            ...cameoCompanies,
             ...kfintechCompanies,
-            // ...kosmicKfintechCompanies,
-            // ...purvaShareCompanies,
+            ...kosmicKfintechCompanies,
+            ...purvaShareCompanies,
             ...linkInTimeCompanies,
             ...maashitlaCompanies,
             ...skylinertaCompanies
